@@ -8,6 +8,7 @@ class Dragball extends StatefulWidget {
     Key? key,
     required this.child,
     required this.ball,
+    required this.onTap,
     required this.sizeBall,
     this.marginTopBottom = 150,
     this.icon,
@@ -25,6 +26,8 @@ class Dragball extends StatefulWidget {
   /// example with image
   /// make sure the size is the same as [sizeBall] property
   final Widget ball;
+
+  final Function onTap;
 
   /// Size your ball
   /// Please fill in correctly, this will affect the calculation process
@@ -237,9 +240,14 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
                           alignment: Alignment.center,
                           children: [
                             Positioned(
-                                right: _isPositionOnRight ? 0 : null,
-                                left: !_isPositionOnRight ? 0 : null,
-                                child: widget.ball),
+                              right: _isPositionOnRight ? 0 : null,
+                              left: !_isPositionOnRight ? 0 : null,
+                              child: GestureDetector(
+                                child: widget.ball,
+                                onTap:
+                                    !_isBallHide ? () => widget.onTap() : null,
+                              ),
+                            ),
                             Positioned(
                               right: _isPositionOnRight ? null : 0,
                               left: !_isPositionOnRight ? null : 0,
