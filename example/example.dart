@@ -28,11 +28,12 @@ class _ExampleDragBallState extends State<ExampleDragBall> {
   Widget build(BuildContext context) {
     return Dragball(
       ball: FlutterLogo(
-        size: 50,
+        size: 70,
       ),
-      sizeBall: 50,
+      sizeBall: 70,
+      startFromRight: true,
       onTap: () {
-        debugPrint('Dragball Tapped');
+        debugPrint('Dragball Tapped ${DateTime.now().microsecond}');
       },
       child: Scaffold(
         appBar: AppBar(
@@ -48,9 +49,6 @@ class _ExampleDragBallState extends State<ExampleDragBall> {
               decoration: BoxDecoration(
                 color: Colors.grey[200],
                 borderRadius: const BorderRadius.all(Radius.circular(10)),
-              ),
-              child: Center(
-                child: Text('$index'),
               ),
             );
           },

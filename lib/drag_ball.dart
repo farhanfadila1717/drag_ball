@@ -1,5 +1,3 @@
-library drag_ball;
-
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
@@ -11,6 +9,7 @@ class Dragball extends StatefulWidget {
     required this.onTap,
     required this.sizeBall,
     this.marginTopBottom = 150,
+    this.withIcon = true,
     this.icon,
     this.startFromRight = false,
     this.animationSizeDuration,
@@ -27,6 +26,7 @@ class Dragball extends StatefulWidget {
   /// make sure the size is the same as [sizeBall] property
   final Widget ball;
 
+  /// This function will be called when the ball is pressed
   final Function onTap;
 
   /// Size your ball
@@ -57,6 +57,11 @@ class Dragball extends StatefulWidget {
   /// Initialize position when first called
   /// default [initialTop: 0]
   final double? initialTop;
+
+  /// If you don't want to show ball with icon,
+  /// Change value to false
+  /// default[withIcon: true]
+  final bool withIcon;
 
   @override
   _DragballState createState() => _DragballState();
@@ -92,10 +97,31 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
     super.initState();
   }
 
+  @override
+  void didUpdateWidget(covariant Dragball oldWidget) {
+    if (oldWidget.sizeBall != widget.sizeBall) {
+      if (_offsetAnimationController.isCompleted) {
+        _offsetAnimationController.reset();
+        _offsetAnimation = Tween<double>(begin: 0, end: widget.sizeBall / 1.5)
+            .animate(CurvedAnimation(
+          parent: _offsetAnimationController,
+          curve: widget.curveSizeAnimation ?? Curves.easeIn,
+        ));
+        _isBallHide = false;
+        if (_isPositionOnRight) {
+          _angleIcon = math.pi;
+        } else {
+          _angleIcon = 0;
+        }
+      }
+    }
+    super.didUpdateWidget(oldWidget);
+  }
+
   /// function to initialize position
   /// just called on [initState]
   void _initialPosition() {
-    _top = widget.initialTop ?? 0;
+    _top = widget.initialTop ?? widget.marginTopBottom;
     if (widget.startFromRight) {
       _left = null;
       _right = 0;
@@ -248,33 +274,40 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
                                     !_isBallHide ? () => widget.onTap() : null,
                               ),
                             ),
-                            Positioned(
-                              right: _isPositionOnRight ? null : 0,
-                              left: !_isPositionOnRight ? null : 0,
-                              child: GestureDetector(
-                                onTap: () => _onHideOrShowBall(),
-                                behavior: HitTestBehavior.translucent,
-                                child: Transform.rotate(
-                                  angle: _angleIcon,
-                                  child: Container(
-                                    height: 30,
-                                    width: 30,
-                                    padding: const EdgeInsets.all(3),
-                                    decoration: BoxDecoration(
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: SizedBox.expand(
-                                      child: widget.icon ??
-                                          Icon(
-                                            Icons.navigate_before_rounded,
-                                            color: Colors.white,
-                                          ),
-                                    ),
-                                  ),
-                                ),
-                              ),
+                            Builder(
+                              builder: (context) => widget.withIcon
+                                  ? Positioned(
+                                      right: _isPositionOnRight ? null : 0,
+                                      left: !_isPositionOnRight ? null : 0,
+                                      child: GestureDetector(
+                                        onTap: () => _onHideOrShowBall(),
+                                        behavior: HitTestBehavior.translucent,
+                                        child: Transform.rotate(
+                                          angle: _angleIcon,
+                                          child: widget.icon ??
+                                              Container(
+                                                height: 30,
+                                                width: 30,
+                                                padding:
+                                                    const EdgeInsets.all(3),
+                                                decoration: BoxDecoration(
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .primary,
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                child: SizedBox.expand(
+                                                  child: Icon(
+                                                    Icons
+                                                        .navigate_before_rounded,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ),
+                                        ),
+                                      ),
+                                    )
+                                  : SizedBox.shrink(),
                             ),
                           ],
                         ),
