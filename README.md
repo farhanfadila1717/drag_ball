@@ -49,5 +49,5 @@ Dragball(
 );
 ```
 <br>
-<p><img src="https://github.com/farhanfadila1717/drag_ball/blob/master/display/dragball_example.gif?raw=true" height="400"/></p>
+<p><img src="https://github.com/farhanfadila1717/drag_ball/blob/master/display/dragball_example.gif?raw=true" height="600"/></p>
 
