@@ -1,4 +1,4 @@
-<p align="center"><img src="https://github.com/farhanfadila1717/drag_ball/blob/master/display/drag_ball_cover.png?raw=true" height="200" /> </p>
+<p align="center"><img src="https://github.com/farhanfadila1717/drag_ball/blob/master/display/drag_ball_cover.gif?raw=true" height="200"/></p>
 
 <h1 align="center">Dragball</h1>
 
