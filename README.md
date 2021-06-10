@@ -9,6 +9,10 @@
     <img src="https://img.shields.io/badge/Platform-Flutter-02569B?logo=flutter"
       alt="Platform" />
   </a>
+  <a href="https://www.paypal.me/farhanfadila1717">
+    <img src="https://img.shields.io/badge/Donate-PayPal-00457C?logo=paypal"
+      alt="Donate" />
+  </a>
 </p><br>
 
 ## Example
@@ -45,5 +49,5 @@ Dragball(
 );
 ```
 <br>
-<p><img src="https://github.com/farhanfadila1717/drag_ball/blob/master/display/dragball_example.gif?raw=true"/></p>
+<p><img src="https://github.com/farhanfadila1717/drag_ball/blob/master/display/dragball_example.gif?raw=true" height="400"/></p>
 
