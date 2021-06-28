@@ -126,6 +126,7 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
       _left = null;
       _right = 0;
       _isPositionOnRight = true;
+      _angleIcon = math.pi;
     }
   }
 
