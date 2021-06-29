@@ -30,7 +30,7 @@ class Dragball extends StatefulWidget {
   final Widget ball;
 
   /// Size your ball
-  /// Please fill in correctly, this will affect the calculation process
+  /// Please fill in correctly and the same size as [ball] property, this will affect the calculation process
   final double ballSize;
 
   /// This function will be called when the ball is pressed
@@ -89,7 +89,7 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
   late IconData _icon;
   late Color _iconColor;
   late BoxShape _boxShape;
-  late Color? _backgroundIconColor;
+  late Color _backgroundIconColor;
   late BorderRadius? _borderRadiusBackgroundIcon;
 
   late AnimationController _animationController;
@@ -115,7 +115,8 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
     ));
     _icon = widget.icon ?? Icons.navigate_before_rounded;
     _iconColor = widget.iconColor ?? Colors.white;
-    _backgroundIconColor = widget.backgroundIconColor;
+    _backgroundIconColor =
+        widget.backgroundIconColor ?? Theme.of(context).primaryColor;
     _borderRadiusBackgroundIcon = widget.borderRadiusBackgroundIcon;
     _boxShape = widget.borderRadiusBackgroundIcon == null
         ? BoxShape.circle
@@ -142,6 +143,21 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
           _angleIcon = 0;
         }
       }
+    }
+    if (oldWidget.iconColor != widget.iconColor)
+      _iconColor = widget.iconColor ?? Colors.white;
+    if (oldWidget.backgroundIconColor != widget.backgroundIconColor)
+      _backgroundIconColor =
+          widget.backgroundIconColor ?? Theme.of(context).primaryColor;
+    if (widget.borderRadiusBackgroundIcon != null) {
+      if (oldWidget.borderRadiusBackgroundIcon !=
+          widget.borderRadiusBackgroundIcon) {
+        _borderRadiusBackgroundIcon = widget.borderRadiusBackgroundIcon;
+        _boxShape = BoxShape.rectangle;
+      }
+    } else {
+      _borderRadiusBackgroundIcon = null;
+      _boxShape = BoxShape.circle;
     }
     super.didUpdateWidget(oldWidget);
   }
@@ -324,10 +340,7 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
                                             width: 30,
                                             padding: const EdgeInsets.all(3),
                                             decoration: BoxDecoration(
-                                              color: _backgroundIconColor ??
-                                                  Theme.of(context)
-                                                      .colorScheme
-                                                      .primary,
+                                              color: _backgroundIconColor,
                                               borderRadius:
                                                   _borderRadiusBackgroundIcon,
                                               shape: _boxShape,
