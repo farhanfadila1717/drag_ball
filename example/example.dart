@@ -30,7 +30,7 @@ class _ExampleDragBallState extends State<ExampleDragBall> {
       ball: FlutterLogo(
         size: 70,
       ),
-      sizeBall: 70,
+      ballSize: 70,
       startFromRight: true,
       onTap: () {
         debugPrint('Dragball Tapped ${DateTime.now().microsecond}');

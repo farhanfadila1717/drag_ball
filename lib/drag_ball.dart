@@ -6,11 +6,14 @@ class Dragball extends StatefulWidget {
     Key? key,
     required this.child,
     required this.ball,
+    required this.ballSize,
     required this.onTap,
-    required this.sizeBall,
     this.marginTopBottom = 150,
     this.withIcon = true,
     this.icon,
+    this.iconColor,
+    this.backgroundIconColor,
+    this.borderRadiusBackgroundIcon,
     this.startFromRight = false,
     this.animationSizeDuration,
     this.curveSizeAnimation,
@@ -23,15 +26,15 @@ class Dragball extends StatefulWidget {
 
   /// This widget for Custom your ball
   /// example with image
-  /// make sure the size is the same as [sizeBall] property
+  /// make sure the size is the same as [ballSize] property
   final Widget ball;
-
-  /// This function will be called when the ball is pressed
-  final Function onTap;
 
   /// Size your ball
   /// Please fill in correctly, this will affect the calculation process
-  final double sizeBall;
+  final double ballSize;
+
+  /// This function will be called when the ball is pressed
+  final Function onTap;
 
   /// Custom Margin top bottom
   /// Ball would not be in that position
@@ -43,8 +46,20 @@ class Dragball extends StatefulWidget {
   final bool startFromRight;
 
   /// Custom icon hide/show ball
-  /// default: [icon: Icon(Icons.navigate_before_rounded)]
-  final Widget? icon;
+  /// default: [Icons.navigate_before_rounded]
+  final IconData? icon;
+
+  /// Background Color for icon
+  /// default: [Colors.white]
+  final Color? iconColor;
+
+  /// Background Color for Container wrapped Icon
+  /// default: [primaryColor]
+  final Color? backgroundIconColor;
+
+  /// BorderRadius for Container wrapped Icon
+  /// default: [0]
+  final BorderRadius? borderRadiusBackgroundIcon;
 
   /// Custom duration for size animation
   /// default [duration: Duration(milliseconds: 200)]
@@ -71,6 +86,11 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
   bool _isBallDraged = false, _isBallHide = false, _isPositionOnRight = false;
   double? _top, _left = 0, _right, _bottom;
   double _angleIcon = 0;
+  late IconData _icon;
+  late Color _iconColor;
+  late BoxShape _boxShape;
+  late Color? _backgroundIconColor;
+  late BorderRadius? _borderRadiusBackgroundIcon;
 
   late AnimationController _animationController;
   late AnimationController _offsetAnimationController;
@@ -88,21 +108,29 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
     ));
     _offsetAnimationController =
         AnimationController(vsync: this, duration: Duration(milliseconds: 300));
-    _offsetAnimation = Tween<double>(begin: 0, end: widget.sizeBall / 1.5)
+    _offsetAnimation = Tween<double>(begin: 0, end: widget.ballSize / 1.5)
         .animate(CurvedAnimation(
       parent: _offsetAnimationController,
       curve: widget.curveSizeAnimation ?? Curves.easeIn,
     ));
+    _icon = widget.icon ?? Icons.navigate_before_rounded;
+    _iconColor = widget.iconColor ?? Colors.white;
+    _backgroundIconColor = widget.backgroundIconColor;
+    _borderRadiusBackgroundIcon = widget.borderRadiusBackgroundIcon;
+    _boxShape = widget.borderRadiusBackgroundIcon == null
+        ? BoxShape.circle
+        : BoxShape.rectangle;
+
     _initialPosition();
     super.initState();
   }
 
   @override
   void didUpdateWidget(covariant Dragball oldWidget) {
-    if (oldWidget.sizeBall != widget.sizeBall) {
+    if (oldWidget.ballSize != widget.ballSize) {
       if (_offsetAnimationController.isCompleted) {
         _offsetAnimationController.reset();
-        _offsetAnimation = Tween<double>(begin: 0, end: widget.sizeBall / 1.5)
+        _offsetAnimation = Tween<double>(begin: 0, end: widget.ballSize / 1.5)
             .animate(CurvedAnimation(
           parent: _offsetAnimationController,
           curve: widget.curveSizeAnimation ?? Curves.easeIn,
@@ -183,7 +211,7 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
   /// calculate the position of the ball
   void _onDragEnd(DraggableDetails details, Size size) {
     final Offset offset = details.offset;
-    final double halfWidthBall = widget.sizeBall / 1.5;
+    final double halfWidthBall = widget.ballSize / 1.5;
     final double halfWidth = size.width / 2 - halfWidthBall;
     final double maxHeight = size.height - 150.0;
 
@@ -235,8 +263,8 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
             left: _left,
             right: _right,
             bottom: _bottom,
-            width: widget.sizeBall + 15,
-            height: widget.sizeBall,
+            width: widget.ballSize + 15,
+            height: widget.ballSize,
             child: AnimatedBuilder(
               animation: _offsetAnimationController,
               builder: (context, child) {
@@ -262,17 +290,23 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
                 },
                 child: Draggable(
                   child: _isBallDraged
-                      ? SizedBox.fromSize()
+                      ? SizedBox.shrink()
                       : Stack(
                           alignment: Alignment.center,
                           children: [
                             Positioned(
                               right: _isPositionOnRight ? 0 : null,
                               left: !_isPositionOnRight ? 0 : null,
-                              child: GestureDetector(
-                                child: widget.ball,
-                                onTap:
-                                    !_isBallHide ? () => widget.onTap() : null,
+                              child: MouseRegion(
+                                cursor: MaterialStateMouseCursor.clickable,
+                                child: GestureDetector(
+                                  child: widget.ball,
+                                  onTap: !_isBallHide
+                                      ? () {
+                                          widget.onTap();
+                                        }
+                                      : null,
+                                ),
                               ),
                             ),
                             Builder(
@@ -285,26 +319,26 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
                                         behavior: HitTestBehavior.translucent,
                                         child: Transform.rotate(
                                           angle: _angleIcon,
-                                          child: widget.icon ??
-                                              Container(
-                                                height: 30,
-                                                width: 30,
-                                                padding:
-                                                    const EdgeInsets.all(3),
-                                                decoration: BoxDecoration(
-                                                  color: Theme.of(context)
+                                          child: Container(
+                                            height: 30,
+                                            width: 30,
+                                            padding: const EdgeInsets.all(3),
+                                            decoration: BoxDecoration(
+                                              color: _backgroundIconColor ??
+                                                  Theme.of(context)
                                                       .colorScheme
                                                       .primary,
-                                                  shape: BoxShape.circle,
-                                                ),
-                                                child: SizedBox.expand(
-                                                  child: Icon(
-                                                    Icons
-                                                        .navigate_before_rounded,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
+                                              borderRadius:
+                                                  _borderRadiusBackgroundIcon,
+                                              shape: _boxShape,
+                                            ),
+                                            child: SizedBox.expand(
+                                              child: Icon(
+                                                _icon,
+                                                color: _iconColor,
                                               ),
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     )
