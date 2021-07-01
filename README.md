@@ -60,8 +60,8 @@ Dragball(
 ----
 
 ### 🚧 Maintener 
-<a href="https://github.com/farhanfadila1717"><img src="https://avatars.githubusercontent.com/u/43161050?s=100" width="80px;" alt="Farhan Fadila"/></a>
-***Farhan Fadila***
+<a href="https://github.com/farhanfadila1717"><img src="https://avatars.githubusercontent.com/u/43161050?s=100" width="80px;" alt="Farhan Fadila"/></a><br>
+**Farhan Fadila**
 📫 How to reach me: farhan.fadila1717@gmail.com
 
 
