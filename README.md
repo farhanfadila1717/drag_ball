@@ -15,6 +15,12 @@
   </a>
 </p><br>
 
+## ⚠️ Warning
+* Give the ball the same width as the ball size, for animation calculations
+* if you are making ui for web, desktop, please don't use mediaquery computation. Use immutable value if display is resized
+
+----
+
 ## Example
 ```dart
 Dragball(
@@ -50,4 +56,12 @@ Dragball(
 ```
 <br>
 <p><img src="https://github.com/farhanfadila1717/drag_ball/blob/master/display/dragball_example.gif?raw=true" height="600"/></p>
+
+----
+
+### 🚧 Maintener 
+<a href="https://github.com/farhanfadila1717"><img src="https://avatars.githubusercontent.com/u/43161050?s=100" width="80px;" alt="Farhan Fadila"/></a>
+***Farhan Fadila***
+📫 How to reach me: farhan.fadila1717@gmail.com
+
 
