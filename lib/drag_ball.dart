@@ -87,9 +87,7 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
   double? _top, _left = 0, _right, _bottom;
   double _angleIcon = 0;
   late IconData _icon;
-  late Color _iconColor;
   late BoxShape _boxShape;
-  late Color _backgroundIconColor;
   late BorderRadius? _borderRadiusBackgroundIcon;
 
   late AnimationController _animationController;
@@ -114,9 +112,6 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
       curve: widget.curveSizeAnimation ?? Curves.easeIn,
     ));
     _icon = widget.icon ?? Icons.navigate_before_rounded;
-    _iconColor = widget.iconColor ?? Colors.white;
-    _backgroundIconColor =
-        widget.backgroundIconColor ?? Theme.of(context).primaryColor;
     _borderRadiusBackgroundIcon = widget.borderRadiusBackgroundIcon;
     _boxShape = widget.borderRadiusBackgroundIcon == null
         ? BoxShape.circle
@@ -144,11 +139,6 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
         }
       }
     }
-    if (oldWidget.iconColor != widget.iconColor)
-      _iconColor = widget.iconColor ?? Colors.white;
-    if (oldWidget.backgroundIconColor != widget.backgroundIconColor)
-      _backgroundIconColor =
-          widget.backgroundIconColor ?? Theme.of(context).primaryColor;
     if (widget.borderRadiusBackgroundIcon != null) {
       if (oldWidget.borderRadiusBackgroundIcon !=
           widget.borderRadiusBackgroundIcon) {
@@ -266,6 +256,7 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final theme = Theme.of(context);
 
     return NotificationListener<ScrollNotification>(
       onNotification: _onNotification,
@@ -340,7 +331,9 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
                                             width: 30,
                                             padding: const EdgeInsets.all(3),
                                             decoration: BoxDecoration(
-                                              color: _backgroundIconColor,
+                                              color:
+                                                  widget.backgroundIconColor ??
+                                                      theme.primaryColor,
                                               borderRadius:
                                                   _borderRadiusBackgroundIcon,
                                               shape: _boxShape,
@@ -348,7 +341,8 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
                                             child: SizedBox.expand(
                                               child: Icon(
                                                 _icon,
-                                                color: _iconColor,
+                                                color: widget.iconColor ??
+                                                    Colors.white,
                                               ),
                                             ),
                                           ),
