@@ -85,15 +85,16 @@ class Dragball extends StatefulWidget {
 class _DragballState extends State<Dragball> with TickerProviderStateMixin {
   bool _isBallDraged = false, _isBallHide = false, _isPositionOnRight = false;
   double? _top, _left = 0, _right, _bottom;
-  double _angleIcon = 0;
   late IconData _icon;
   late BoxShape _boxShape;
   late BorderRadius? _borderRadiusBackgroundIcon;
 
   late AnimationController _animationController;
   late AnimationController _offsetAnimationController;
+  late AnimationController _rotateIconAnimationController;
   late Animation<double> _sizeAnimation;
   late Animation<double> _offsetAnimation;
+  late Animation<double> _rotateIconAnimation;
 
   @override
   void initState() {
@@ -111,6 +112,11 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
       parent: _offsetAnimationController,
       curve: widget.curveSizeAnimation ?? Curves.easeIn,
     ));
+    _rotateIconAnimationController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 200));
+    _rotateIconAnimation = Tween<double>(begin: 0, end: math.pi).animate(
+        CurvedAnimation(
+            parent: _rotateIconAnimationController, curve: Curves.slowMiddle));
     _icon = widget.icon ?? Icons.navigate_before_rounded;
     _borderRadiusBackgroundIcon = widget.borderRadiusBackgroundIcon;
     _boxShape = widget.borderRadiusBackgroundIcon == null
@@ -133,9 +139,9 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
         ));
         _isBallHide = false;
         if (_isPositionOnRight) {
-          _angleIcon = math.pi;
+          _rotateIconAnimationController.forward();
         } else {
-          _angleIcon = 0;
+          _rotateIconAnimationController.reverse();
         }
       }
     }
@@ -160,7 +166,7 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
       _left = null;
       _right = 0;
       _isPositionOnRight = true;
-      _angleIcon = math.pi;
+      _rotateIconAnimationController.forward();
     }
   }
 
@@ -196,16 +202,16 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
     if (!_isBallHide) {
       _offsetAnimationController.forward();
       if (_isPositionOnRight) {
-        _angleIcon = 0;
+        _rotateIconAnimationController.reverse();
       } else {
-        _angleIcon = math.pi;
+        _rotateIconAnimationController.forward();
       }
     } else {
       _offsetAnimationController.reverse();
       if (_isPositionOnRight) {
-        _angleIcon = math.pi;
+        _rotateIconAnimationController.forward();
       } else {
-        _angleIcon = 0;
+        _rotateIconAnimationController.reverse();
       }
     }
     setState(() {
@@ -233,13 +239,17 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
     }
     if (offset.dx > halfWidth) {
       _right = 0;
-      _angleIcon = _isBallHide ? 0 : math.pi;
+      _isBallHide
+          ? _rotateIconAnimationController.reverse()
+          : _rotateIconAnimationController.forward();
       _isPositionOnRight = true;
       _left = null;
     } else {
       _right = null;
       _isPositionOnRight = false;
-      _angleIcon = !_isBallHide ? 0 : math.pi;
+      !_isBallHide
+          ? _rotateIconAnimationController.reverse()
+          : _rotateIconAnimationController.forward();
       _left = 0;
     }
     _isBallDraged = false;
@@ -250,6 +260,7 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
   void dispose() {
     _animationController.dispose();
     _offsetAnimationController.dispose();
+    _rotateIconAnimationController.dispose();
     super.dispose();
   }
 
@@ -324,8 +335,15 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
                                       child: GestureDetector(
                                         onTap: () => _onHideOrShowBall(),
                                         behavior: HitTestBehavior.translucent,
-                                        child: Transform.rotate(
-                                          angle: _angleIcon,
+                                        child: AnimatedBuilder(
+                                          animation:
+                                              _rotateIconAnimationController,
+                                          builder: (context, icon) {
+                                            return Transform.rotate(
+                                              angle: _rotateIconAnimation.value,
+                                              child: icon,
+                                            );
+                                          },
                                           child: Container(
                                             height: 30,
                                             width: 30,

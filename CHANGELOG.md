@@ -1,10 +1,10 @@
 ## 0.0.1
 
-* TODO: Describe initial release.
+* First publish
 
 ## 0.0.2
 
-Change description package.
+* Change description package.
 
 ## 0.0.3
 * Fix startFromrRight angle icon
@@ -16,3 +16,5 @@ Change description package.
   Crash use Theme.of(context) on initState
 * Reame Update
 
+## 0.1.1-dev.1
+* Add rotate icon animation
