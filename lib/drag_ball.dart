@@ -306,70 +306,66 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
                   );
                 },
                 child: Draggable(
-                  child: _isBallDraged
-                      ? SizedBox.shrink()
-                      : Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            Positioned(
-                              right: _isPositionOnRight ? 0 : null,
-                              left: !_isPositionOnRight ? 0 : null,
-                              child: MouseRegion(
-                                cursor: MaterialStateMouseCursor.clickable,
-                                child: GestureDetector(
-                                  child: widget.ball,
-                                  onTap: !_isBallHide
-                                      ? () {
-                                          widget.onTap();
-                                        }
-                                      : null,
+                  child: Visibility(
+                    visible: !_isBallDraged,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Positioned(
+                          right: _isPositionOnRight ? 0 : null,
+                          left: !_isPositionOnRight ? 0 : null,
+                          child: MouseRegion(
+                            cursor: MaterialStateMouseCursor.clickable,
+                            child: GestureDetector(
+                              child: widget.ball,
+                              onTap: !_isBallHide
+                                  ? () {
+                                      widget.onTap();
+                                    }
+                                  : null,
+                            ),
+                          ),
+                        ),
+                        Visibility(
+                          visible: widget.withIcon,
+                          child: Positioned(
+                            right: _isPositionOnRight ? null : 0,
+                            left: !_isPositionOnRight ? null : 0,
+                            child: GestureDetector(
+                              onTap: () => _onHideOrShowBall(),
+                              behavior: HitTestBehavior.translucent,
+                              child: AnimatedBuilder(
+                                animation: _rotateIconAnimationController,
+                                builder: (context, icon) {
+                                  return Transform.rotate(
+                                    angle: _rotateIconAnimation.value,
+                                    child: icon,
+                                  );
+                                },
+                                child: Container(
+                                  height: 30,
+                                  width: 30,
+                                  padding: const EdgeInsets.all(3),
+                                  decoration: BoxDecoration(
+                                    color: widget.backgroundIconColor ??
+                                        theme.primaryColor,
+                                    borderRadius: _borderRadiusBackgroundIcon,
+                                    shape: _boxShape,
+                                  ),
+                                  child: SizedBox.expand(
+                                    child: Icon(
+                                      _icon,
+                                      color: widget.iconColor ?? Colors.white,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
-                            Builder(
-                              builder: (context) => widget.withIcon
-                                  ? Positioned(
-                                      right: _isPositionOnRight ? null : 0,
-                                      left: !_isPositionOnRight ? null : 0,
-                                      child: GestureDetector(
-                                        onTap: () => _onHideOrShowBall(),
-                                        behavior: HitTestBehavior.translucent,
-                                        child: AnimatedBuilder(
-                                          animation:
-                                              _rotateIconAnimationController,
-                                          builder: (context, icon) {
-                                            return Transform.rotate(
-                                              angle: _rotateIconAnimation.value,
-                                              child: icon,
-                                            );
-                                          },
-                                          child: Container(
-                                            height: 30,
-                                            width: 30,
-                                            padding: const EdgeInsets.all(3),
-                                            decoration: BoxDecoration(
-                                              color:
-                                                  widget.backgroundIconColor ??
-                                                      theme.primaryColor,
-                                              borderRadius:
-                                                  _borderRadiusBackgroundIcon,
-                                              shape: _boxShape,
-                                            ),
-                                            child: SizedBox.expand(
-                                              child: Icon(
-                                                _icon,
-                                                color: widget.iconColor ??
-                                                    Colors.white,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    )
-                                  : SizedBox.shrink(),
-                            ),
-                          ],
+                          ),
                         ),
+                      ],
+                    ),
+                  ),
                   feedback: widget.ball,
                   onDragStarted: () => _onDragStarted(),
                   onDragEnd: (details) => _onDragEnd(details, size),
