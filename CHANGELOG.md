@@ -18,3 +18,6 @@
 
 ## 0.1.1-dev.1
 * Add rotate icon animation
+
+## 0.1.1
+* Improve rotate icon animation
