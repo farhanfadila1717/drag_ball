@@ -114,7 +114,7 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
     ));
     _rotateIconAnimationController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 200));
-    _rotateIconAnimation = Tween<double>(begin: 0, end: math.pi)
+    _rotateIconAnimation = Tween<double>(begin: 0, end: -math.pi)
         .animate(_rotateIconAnimationController);
     _icon = widget.icon ?? Icons.navigate_before_rounded;
     _borderRadiusBackgroundIcon = widget.borderRadiusBackgroundIcon;
