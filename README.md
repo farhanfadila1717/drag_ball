@@ -2,7 +2,7 @@
 
 <h1 align="center">Dragball</h1>
 
-<p align="center">A flutter package, inpiration Indonesian e-commerce widget or similiar AssistiveTouch on Iphone.</p><br>
+<p align="center">A flutter package, inspiration Indonesian e-commerce widget or similiar AssistiveTouch on Iphone.</p><br>
 
 <p align="center">
   <a href="https://flutter.dev">
@@ -15,9 +15,8 @@
   </a>
 </p><br>
 
-## ⚠️ Warning
-* Give the ball the same width as the ball size, for animation calculations
-* if you are making ui for web, desktop, please don't use mediaquery computation. Use immutable value if display is resized
+## ⚠️ Note
+* Give the ball the same width as the ball size, for animation calculations.
 
 ----
 
@@ -25,6 +24,8 @@
 ```dart
 Dragball(
       ball: FlutterLogo(
+        /// make sure the size or width of the ball 
+        /// is equal to [ballSize] property
         size: 70,
       ),
       ballSize: 70,

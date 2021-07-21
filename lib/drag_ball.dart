@@ -11,9 +11,14 @@ class Dragball extends StatefulWidget {
     this.marginTopBottom = 150,
     this.withIcon = true,
     this.icon,
+    this.iconSize = 24,
     this.iconColor,
-    this.backgroundIconColor,
-    this.borderRadiusBackgroundIcon,
+    this.iconPadding = 3,
+    @Deprecated('This property don\'t work again, replace to backroundDecoration')
+        this.backgroundIconColor,
+    @Deprecated('This property don\'t work again, replace to backroundDecoration')
+        this.borderRadiusBackgroundIcon,
+    this.backgroundDecorationIcon,
     this.startFromRight = false,
     this.animationSizeDuration,
     this.curveSizeAnimation,
@@ -61,6 +66,11 @@ class Dragball extends StatefulWidget {
   /// default: [0]
   final BorderRadius? borderRadiusBackgroundIcon;
 
+  /// property to decorate your icon background
+  /// by default it will be colored according to your primary color,
+  /// and circle shape
+  final BoxDecoration? backgroundDecorationIcon;
+
   /// Custom duration for size animation
   /// default [duration: Duration(milliseconds: 200)]
   final Duration? animationSizeDuration;
@@ -72,6 +82,17 @@ class Dragball extends StatefulWidget {
   /// Initialize position when first called
   /// default [initialTop: 0]
   final double? initialTop;
+
+  /// If you want custom icon size
+  /// Change value with you want
+  /// default[iconSize: 24]
+  final double iconSize;
+
+  /// This will adjust the distance between the icon and the background
+  /// If you want custom icon padding
+  /// Change value with you want
+  /// default[iconPadding: 3]
+  final double iconPadding;
 
   /// If you don't want to show ball with icon,
   /// Change value to false
@@ -86,14 +107,12 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
   bool _isBallDraged = false, _isBallHide = false, _isPositionOnRight = false;
   double? _top, _left = 0, _right, _bottom;
   late IconData _icon;
-  late BoxShape _boxShape;
-  late BorderRadius? _borderRadiusBackgroundIcon;
 
   late AnimationController _animationController;
   late AnimationController _offsetAnimationController;
   late AnimationController _rotateIconAnimationController;
   late Animation<double> _sizeAnimation;
-  late Animation<double> _offsetAnimation;
+  late Animation<Offset> _offsetAnimation;
   late Animation<double> _rotateIconAnimation;
 
   @override
@@ -107,7 +126,7 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
     ));
     _offsetAnimationController =
         AnimationController(vsync: this, duration: Duration(milliseconds: 300));
-    _offsetAnimation = Tween<double>(begin: 0, end: widget.ballSize / 1.5)
+    _offsetAnimation = Tween<Offset>(begin: Offset.zero, end: Offset(0.6, 0.0))
         .animate(CurvedAnimation(
       parent: _offsetAnimationController,
       curve: widget.curveSizeAnimation ?? Curves.easeIn,
@@ -117,10 +136,6 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
     _rotateIconAnimation = Tween<double>(begin: 0, end: -math.pi)
         .animate(_rotateIconAnimationController);
     _icon = widget.icon ?? Icons.navigate_before_rounded;
-    _borderRadiusBackgroundIcon = widget.borderRadiusBackgroundIcon;
-    _boxShape = widget.borderRadiusBackgroundIcon == null
-        ? BoxShape.circle
-        : BoxShape.rectangle;
 
     _initialPosition();
     super.initState();
@@ -128,31 +143,10 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
 
   @override
   void didUpdateWidget(covariant Dragball oldWidget) {
-    if (oldWidget.ballSize != widget.ballSize) {
-      if (_offsetAnimationController.isCompleted) {
-        _offsetAnimationController.reset();
-        _offsetAnimation = Tween<double>(begin: 0, end: widget.ballSize / 1.5)
-            .animate(CurvedAnimation(
-          parent: _offsetAnimationController,
-          curve: widget.curveSizeAnimation ?? Curves.easeIn,
-        ));
-        _isBallHide = false;
-        if (_isPositionOnRight) {
-          _rotateIconAnimationController.forward();
-        } else {
-          _rotateIconAnimationController.reverse();
-        }
+    if (widget.icon != null) {
+      if (widget.icon != _icon) {
+        _icon = widget.icon ?? Icons.navigate_before_rounded;
       }
-    }
-    if (widget.borderRadiusBackgroundIcon != null) {
-      if (oldWidget.borderRadiusBackgroundIcon !=
-          widget.borderRadiusBackgroundIcon) {
-        _borderRadiusBackgroundIcon = widget.borderRadiusBackgroundIcon;
-        _boxShape = BoxShape.rectangle;
-      }
-    } else {
-      _borderRadiusBackgroundIcon = null;
-      _boxShape = BoxShape.circle;
     }
     super.didUpdateWidget(oldWidget);
   }
@@ -280,19 +274,19 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
             left: _left,
             right: _right,
             bottom: _bottom,
-            width: widget.ballSize + 15,
+            width: widget.ballSize + (widget.iconSize + widget.iconPadding) / 2,
             height: widget.ballSize,
             child: AnimatedBuilder(
               animation: _offsetAnimationController,
               builder: (context, child) {
                 if (_isPositionOnRight) {
-                  return Transform.translate(
-                    offset: Offset(_offsetAnimation.value, 0),
+                  return FractionalTranslation(
+                    translation: _offsetAnimation.value,
                     child: child,
                   );
                 } else {
-                  return Transform.translate(
-                    offset: Offset(-_offsetAnimation.value, 0),
+                  return FractionalTranslation(
+                    translation: Offset(-_offsetAnimation.value.dx, 0.0),
                     child: child,
                   );
                 }
@@ -334,28 +328,28 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
                             child: GestureDetector(
                               onTap: () => _onHideOrShowBall(),
                               behavior: HitTestBehavior.translucent,
-                              child: AnimatedBuilder(
-                                animation: _rotateIconAnimationController,
-                                builder: (context, icon) {
-                                  return Transform.rotate(
-                                    angle: _rotateIconAnimation.value,
-                                    child: icon,
-                                  );
-                                },
-                                child: Container(
-                                  height: 30,
-                                  width: 30,
-                                  padding: const EdgeInsets.all(3),
-                                  decoration: BoxDecoration(
-                                    color: widget.backgroundIconColor ??
-                                        theme.primaryColor,
-                                    borderRadius: _borderRadiusBackgroundIcon,
-                                    shape: _boxShape,
-                                  ),
-                                  child: SizedBox.expand(
+                              child: MouseRegion(
+                                cursor: SystemMouseCursors.click,
+                                child: AnimatedBuilder(
+                                  animation: _rotateIconAnimationController,
+                                  builder: (context, icon) {
+                                    return Transform.rotate(
+                                      angle: _rotateIconAnimation.value,
+                                      child: icon,
+                                    );
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.all(widget.iconPadding),
+                                    decoration:
+                                        widget.backgroundDecorationIcon ??
+                                            BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: theme.primaryColor,
+                                            ),
                                     child: Icon(
                                       _icon,
                                       color: widget.iconColor ?? Colors.white,
+                                      size: widget.iconSize,
                                     ),
                                   ),
                                 ),

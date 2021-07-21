@@ -21,3 +21,9 @@
 
 ## 0.1.1
 * Improve rotate icon animation
+
+## 0.2.0-dev.1
+* Support resized layout 
+* Add propery backgroundDecorationIcon
+* Depertacred property backgroundIconColor, and borderRadiusBackgroundIcon.
+
