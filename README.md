@@ -1,6 +1,6 @@
 ## [![cover][]][pubdev dragball]
 
-[![flutter][]][web flutter] [![paypal][]][paypal account] <br>
+[![flutter][]][web flutter] [![badge paypal][]][paypal account] <br>
 A flutter package, inspiration Indonesian e-commerce widget or similiar AssistiveTouch on Iphone.
 
 ---
