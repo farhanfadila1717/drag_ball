@@ -27,3 +27,6 @@
 * Add propery backgroundDecorationIcon
 * Depertacred property backgroundIconColor, and borderRadiusBackgroundIcon.
 
+## 0.2.0
+* Fix animation curve
+* Improve rotate icon animation

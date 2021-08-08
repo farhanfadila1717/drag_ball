@@ -11,19 +11,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: ExampleDragBall(),
+      home: ExampleDragball(),
     );
   }
 }
 
-class ExampleDragBall extends StatefulWidget {
-  const ExampleDragBall({Key? key}) : super(key: key);
+class ExampleDragball extends StatelessWidget {
+  const ExampleDragball({Key? key}) : super(key: key);
 
-  @override
-  _ExampleDragBallState createState() => _ExampleDragBallState();
-}
-
-class _ExampleDragBallState extends State<ExampleDragBall> {
   @override
   Widget build(BuildContext context) {
     return Dragball(
@@ -32,6 +27,7 @@ class _ExampleDragBallState extends State<ExampleDragBall> {
       ),
       ballSize: 70,
       startFromRight: true,
+      initialTop: 200,
       onTap: () {
         debugPrint('Dragball Tapped ${DateTime.now().microsecond}');
       },
@@ -40,10 +36,10 @@ class _ExampleDragBallState extends State<ExampleDragBall> {
           title: Text('Dragball Example'),
         ),
         body: ListView.builder(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          itemBuilder: (context, index) {
+          padding: const EdgeInsets.all(20),
+          itemBuilder: (BuildContext context, int index) {
             return Container(
-              height: 250,
+              height: 200,
               width: double.infinity,
               margin: const EdgeInsets.only(bottom: 16),
               decoration: BoxDecoration(

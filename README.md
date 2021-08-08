@@ -1,19 +1,9 @@
-<p align="center"><img src="https://github.com/farhanfadila1717/drag_ball/blob/master/display/drag_ball_cover.gif?raw=true" height="200"/></p>
+## [![cover][]][pubdev dragball]
 
-<h1 align="center">Dragball</h1>
+[![flutter][]][web flutter] [![paypal][]][paypal account] <br>
+A flutter package, inspiration Indonesian e-commerce widget or similiar AssistiveTouch on Iphone.
 
-<p align="center">A flutter package, inspiration Indonesian e-commerce widget or similiar AssistiveTouch on Iphone.</p><br>
-
-<p align="center">
-  <a href="https://flutter.dev">
-    <img src="https://img.shields.io/badge/Platform-Flutter-02569B?logo=flutter"
-      alt="Platform" />
-  </a>
-  <a href="https://www.paypal.me/farhanfadila1717">
-    <img src="https://img.shields.io/badge/Donate-PayPal-00457C?logo=paypal"
-      alt="Donate" />
-  </a>
-</p><br>
+---
 
 ## ⚠️ Note
 * Give the ball the same width as the ball size, for animation calculations.
@@ -23,46 +13,62 @@
 ## Example
 ```dart
 Dragball(
-      ball: FlutterLogo(
-        /// make sure the size or width of the ball 
-        /// is equal to [ballSize] property
-        size: 70,
-      ),
-      ballSize: 70,
-      startFromRight: true,
-      onTap: () {
-        debugPrint('Dragball Tapped ${DateTime.now().microsecond}');
+  ball: FlutterLogo(
+    /// make sure the size or width of the ball 
+    /// is equal to [ballSize] property
+    size: 70,
+  ),
+  ballSize: 70,
+  startFromRight: true,
+  initialTop: 200,
+  onTap: () {
+    debugPrint('Dragball Tapped ${DateTime.now().microsecond}');
+  },
+  child: Scaffold(
+    appBar: AppBar(
+      title: Text('Dragball Example'),
+    ),
+    body: ListView.builder(
+      padding: const EdgeInsets.all(20),
+      itemBuilder: (BuildContext context, int index) {
+        return Container(
+          height: 200,
+          width: double.infinity,
+          margin: const EdgeInsets.only(bottom: 16),
+          decoration: BoxDecoration(
+            color: Colors.grey[200],
+            borderRadius: const BorderRadius.all(Radius.circular(10)),
+          ),
+        );
       },
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text('Dragball Example'),
-        ),
-        body: ListView.builder(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          itemBuilder: (context, index) {
-            return Container(
-              height: 250,
-              width: double.infinity,
-              margin: const EdgeInsets.only(bottom: 16),
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: const BorderRadius.all(Radius.circular(10)),
-              ),
-            );
-          },
-          itemCount: 5,
-        ),
-      ),
-    );
+      itemCount: 5,
+    ),
+  ),
+);
 ```
-<br>
-<p><img src="https://github.com/farhanfadila1717/drag_ball/blob/master/display/dragball_example.gif?raw=true" height="600"/></p>
+### Output
+
+[![output][]][output]
 
 ----
 
 ### 🚧 Maintener 
-<a href="https://github.com/farhanfadila1717"><img src="https://avatars.githubusercontent.com/u/43161050?s=100" width="80px;" alt="Farhan Fadila"/></a><br>
+[![account avatar][]][github account] <br>
 **Farhan Fadila** <br>
 📫 How to reach me: farhan.fadila1717@gmail.com
 
+### ❤️ Suport Maintener
+[![badge paypal][]][paypal account] [![badge linktree][]][linktree account]
+
+[cover]: https://github.com/farhanfadila1717/flutter_package/blob/master/display/drag_ball/drag_ball.png
+[pubdev dragball]: https://pub.dev/packages/drag_ball
+[output]: https://github.com/farhanfadila1717/flutter_package/blob/master/display/drag_ball/output.gif
+[account avatar]: https://avatars.githubusercontent.com/u/43161050?s=80
+[github account]: https://github.com/farhanfadila1717
+[badge linktree]: https://img.shields.io/badge/Linktree-farhanfadila-orange
+[linktree account]: https://linktr.ee/farhanfadila
+[badge paypal]: https://img.shields.io/badge/Donate-PayPal-00457C?logo=paypal
+[paypal account]: https://www.paypal.me/farhanfadila1717
+[flutter]: https://img.shields.io/badge/Platform-Flutter-02569B?logo=flutter
+[web flutter]: https://flutter.dev
 
