@@ -30,3 +30,7 @@
 ## 0.2.0
 * Fix animation curve
 * Improve rotate icon animation
+
+## 0.2.1
+* Improve readme
+* Delete display folder
