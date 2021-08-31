@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
+part 'drag_ball_position.dart';
+
+const Duration kDefaultAnimationDuration = Duration(milliseconds: 300);
+
 class Dragball extends StatefulWidget {
   const Dragball({
     Key? key,
@@ -8,21 +12,17 @@ class Dragball extends StatefulWidget {
     required this.ball,
     required this.ballSize,
     required this.onTap,
+    required this.initialPosition,
+    required this.onPositionChanged,
     this.marginTopBottom = 150,
     this.withIcon = true,
     this.icon,
     this.iconSize = 24,
     this.iconColor,
     this.iconPadding = 3,
-    @Deprecated('This property don\'t work again, replace to backroundDecoration')
-        this.backgroundIconColor,
-    @Deprecated('This property don\'t work again, replace to backroundDecoration')
-        this.borderRadiusBackgroundIcon,
     this.backgroundDecorationIcon,
-    this.startFromRight = false,
     this.animationSizeDuration,
     this.curveSizeAnimation,
-    this.initialTop,
   }) : super(key: key);
 
   /// Put your screen here
@@ -35,20 +35,21 @@ class Dragball extends StatefulWidget {
   final Widget ball;
 
   /// Size your ball
-  /// Please fill in correctly and the same size as [ball] property, this will affect the calculation process
+  /// Please fill in correctly and the same size as [ball] property,
+  /// this will affect the calculation process
   final double ballSize;
 
   /// This function will be called when the ball is pressed
-  final Function onTap;
+  final VoidCallback onTap;
+
+  /// [initialPosition] will be the location or display
+  /// or configuration of the first position [Dragball]
+  final DragballPosition initialPosition;
 
   /// Custom Margin top bottom
   /// Ball would not be in that position
   /// default [marginTopBottom: 150]
   final double marginTopBottom;
-
-  /// Initialization position on the right when first called
-  /// default [startFromRight: false]
-  final bool startFromRight;
 
   /// Custom icon hide/show ball
   /// default: [Icons.navigate_before_rounded]
@@ -57,14 +58,6 @@ class Dragball extends StatefulWidget {
   /// Background Color for icon
   /// default: [Colors.white]
   final Color? iconColor;
-
-  /// Background Color for Container wrapped Icon
-  /// default: [primaryColor]
-  final Color? backgroundIconColor;
-
-  /// BorderRadius for Container wrapped Icon
-  /// default: [0]
-  final BorderRadius? borderRadiusBackgroundIcon;
 
   /// property to decorate your icon background
   /// by default it will be colored according to your primary color,
@@ -78,10 +71,6 @@ class Dragball extends StatefulWidget {
   /// CurvesSizeAnimation
   /// default [curve: Curves.easeIn]
   final Curve? curveSizeAnimation;
-
-  /// Initialize position when first called
-  /// default [initialTop: 0]
-  final double? initialTop;
 
   /// If you want custom icon size
   /// Change value with you want
@@ -99,6 +88,10 @@ class Dragball extends StatefulWidget {
   /// default[withIcon: true]
   final bool withIcon;
 
+  /// this function will return the value of [DragballPosition]
+  /// every time the position changes
+  final ValueChanged<DragballPosition> onPositionChanged;
+
   @override
   _DragballState createState() => _DragballState();
 }
@@ -107,6 +100,7 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
   bool _isBallDraged = false, _isBallHide = false, _isPositionOnRight = false;
   double? _top, _left = 0, _right, _bottom;
   late IconData _icon;
+  late DragballPosition _dragballPosition;
 
   late AnimationController _animationController;
   late AnimationController _offsetAnimationController;
@@ -119,23 +113,22 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
   void initState() {
     _animationController = AnimationController(
         vsync: this,
-        duration: widget.animationSizeDuration ?? Duration(milliseconds: 200));
+        duration: widget.animationSizeDuration ?? kDefaultAnimationDuration);
     _sizeAnimation = Tween<double>(begin: 1, end: 0).animate(CurvedAnimation(
       parent: _animationController,
       curve: widget.curveSizeAnimation ?? Curves.easeIn,
     ));
     _offsetAnimationController =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 300));
+        AnimationController(vsync: this, duration: kDefaultAnimationDuration);
     _offsetAnimation = Tween<Offset>(begin: Offset.zero, end: Offset(0.6, 0.0))
         .animate(CurvedAnimation(
       parent: _offsetAnimationController,
-      curve: widget.curveSizeAnimation ?? Curves.easeIn,
+      curve: Curves.easeIn,
     ));
-    _rotateIconAnimationController = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 200));
+    _rotateIconAnimationController =
+        AnimationController(vsync: this, duration: kDefaultAnimationDuration);
     _rotateIconAnimation = Tween<double>(begin: 0, end: -math.pi)
         .animate(_rotateIconAnimationController);
-    _icon = widget.icon ?? Icons.navigate_before_rounded;
 
     _initialPosition();
     super.initState();
@@ -148,18 +141,26 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
         _icon = widget.icon ?? Icons.navigate_before_rounded;
       }
     }
+    if (widget.animationSizeDuration != oldWidget.animationSizeDuration) {
+      _animationController.duration = widget.animationSizeDuration;
+    }
     super.didUpdateWidget(oldWidget);
   }
 
   /// function to initialize position
   /// just called on [initState]
   void _initialPosition() {
-    _top = widget.initialTop ?? widget.marginTopBottom;
-    if (widget.startFromRight) {
+    _icon = widget.icon ?? Icons.navigate_before_rounded;
+
+    _dragballPosition = widget.initialPosition;
+    _top = widget.initialPosition.top;
+    if (widget.initialPosition.isRight) {
       _left = null;
       _right = 0;
       _isPositionOnRight = true;
-      _rotateIconAnimationController.forward();
+    }
+    if (widget.initialPosition.isHide) {
+      _onHideOrShowBall();
     }
   }
 
@@ -207,9 +208,12 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
         _rotateIconAnimationController.reverse();
       }
     }
-    setState(() {
-      _isBallHide = !_isBallHide;
-    });
+    _isBallHide = !_isBallHide;
+
+    widget.onPositionChanged(
+      _dragballPosition.copyWith(isHide: _isBallHide),
+    );
+    setState(() {});
   }
 
   /// When the user releases the ball, this function will
@@ -246,6 +250,9 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
       _left = 0;
     }
     _isBallDraged = false;
+    widget.onPositionChanged(
+      _dragballPosition.copyWith(isRight: _isPositionOnRight, top: _top),
+    );
     setState(() {});
   }
 
@@ -259,8 +266,8 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final theme = Theme.of(context);
+    final Size size = MediaQuery.of(context).size;
+    final ThemeData theme = Theme.of(context);
 
     return NotificationListener<ScrollNotification>(
       onNotification: _onNotification,
