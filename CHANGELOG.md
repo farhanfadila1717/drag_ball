@@ -34,3 +34,8 @@
 ## 0.2.1
 * Improve readme
 * Delete display folder
+
+## 0.3.0
+* Add DragballPosition
+* Default duration animation
+* Remove depercated API

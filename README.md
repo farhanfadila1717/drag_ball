@@ -7,6 +7,8 @@ A flutter package, inspiration Indonesian e-commerce widget or similiar Assistiv
 
 ## ⚠️ Note
 * Give the ball the same width as the ball size, for animation calculations.
+* Put [DragBall] on top the Scaffold
+
 
 ----
 
@@ -14,15 +16,20 @@ A flutter package, inspiration Indonesian e-commerce widget or similiar Assistiv
 ```dart
 Dragball(
   ball: FlutterLogo(
-    /// make sure the size or width of the ball 
-    /// is equal to [ballSize] property
     size: 70,
   ),
+  initialPosition: const DragballPosition(
+    top: 200,
+    isRight: false,
+  ),
+  withIcon: false,
+  animationSizeDuration: const Duration(milliseconds: 300),
   ballSize: 70,
-  startFromRight: true,
-  initialTop: 200,
   onTap: () {
     debugPrint('Dragball Tapped ${DateTime.now().microsecond}');
+  },
+  onPositionChanged: (DragballPosition position) {
+    debugPrint(position.toString());
   },
   child: Scaffold(
     appBar: AppBar(
