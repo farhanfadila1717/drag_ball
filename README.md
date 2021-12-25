@@ -15,16 +15,14 @@ A flutter package, inspiration Indonesian e-commerce widget or similiar Assistiv
 ## Example
 ```dart
 Dragball(
-  ball: FlutterLogo(
+  ball: const FlutterLogo(
     size: 70,
   ),
+  ballSize: 70,
   initialPosition: const DragballPosition(
     top: 200,
     isRight: false,
   ),
-  withIcon: false,
-  animationSizeDuration: const Duration(milliseconds: 300),
-  ballSize: 70,
   onTap: () {
     debugPrint('Dragball Tapped ${DateTime.now().microsecond}');
   },
@@ -33,18 +31,49 @@ Dragball(
   },
   child: Scaffold(
     appBar: AppBar(
-      title: Text('Dragball Example'),
+      title: const Text('Dragball Example'),
     ),
     body: ListView.builder(
       padding: const EdgeInsets.all(20),
       itemBuilder: (BuildContext context, int index) {
-        return Container(
-          height: 200,
-          width: double.infinity,
-          margin: const EdgeInsets.only(bottom: 16),
-          decoration: BoxDecoration(
-            color: Colors.grey[200],
-            borderRadius: const BorderRadius.all(Radius.circular(10)),
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: const [
+              SizedBox(
+                width: 100,
+                height: 30,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: Color(0xFFE5E5E5),
+                    borderRadius: BorderRadius.all(Radius.circular(15)),
+                  ),
+                ),
+              ),
+              SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                height: 160,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: Color(0xFFE5E5E5),
+                    borderRadius: BorderRadius.all(Radius.circular(15)),
+                  ),
+                ),
+              ),
+              SizedBox(height: 16),
+              SizedBox(
+                width: 200,
+                height: 30,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: Color(0xFFE5E5E5),
+                    borderRadius: BorderRadius.all(Radius.circular(15)),
+                  ),
+                ),
+              ),
+            ],
           ),
         );
       },
