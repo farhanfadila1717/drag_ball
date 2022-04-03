@@ -6,7 +6,6 @@ A flutter package, inspiration Indonesian e-commerce widget or similiar Assistiv
 ---
 
 ## ⚠️ Note
-* Give the ball the same width as the ball size, for animation calculations.
 * Put [DragBall] on top the Scaffold
 
 

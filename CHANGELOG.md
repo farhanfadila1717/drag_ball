@@ -1,4 +1,7 @@
 ## 0.4.0
+* Add: DragballController
+
+## 0.4.0
 * Add: iconPosition, scrollAndHide, rotateIcon
 * change: type icon from IconData to Widget
 * Refactor code base
