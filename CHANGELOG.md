@@ -1,5 +1,5 @@
-## 0.4.0
-* Add: DragballController
+## 0.5.0
+* Add: DragballController, OnIconBallTapped `For override icon ball tapped`
 
 ## 0.4.0
 * Add: iconPosition, scrollAndHide, rotateIcon
