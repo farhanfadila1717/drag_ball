@@ -1,8 +1,11 @@
-import 'package:flutter/material.dart';
 import 'dart:math' as math show pi;
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show RenderProxyBox;
 
+part 'drag_ball_controller.dart';
 part 'drag_ball_position.dart';
 part 'enum.dart';
+part 'utils.dart';
 
 const Duration kDefaultAnimationDuration = Duration(milliseconds: 300);
 
@@ -11,10 +14,12 @@ class Dragball extends StatefulWidget {
     Key? key,
     required this.child,
     required this.ball,
-    required this.ballSize,
     required this.onTap,
     required this.initialPosition,
     required this.onPositionChanged,
+    @Deprecated('No longer used in ver 0.5.0 or above') this.ballSize,
+    this.onIconBallTapped,
+    this.controller,
     this.marginTopBottom = 150,
     this.withIcon = true,
     this.icon,
@@ -35,13 +40,17 @@ class Dragball extends StatefulWidget {
   /// make sure the size is the same as [ballSize] property
   final Widget ball;
 
-  /// Size your ball
-  /// Please fill in correctly and the same size as [ball] property,
-  /// this will affect the calculation process
-  final double ballSize;
+  final double? ballSize;
+
+  final DragballController? controller;
 
   /// This function will be called when the ball is pressed
   final VoidCallback onTap;
+
+  /// This function will called when icon is tapped / pressed
+  /// default when tapped icon is show / hide ball
+  /// If you need show / close ball this function will help you
+  final OnIconBallTapped? onIconBallTapped;
 
   /// [initialPosition] will be the location or display
   /// or configuration of the first position [Dragball]
@@ -94,10 +103,14 @@ class Dragball extends StatefulWidget {
 }
 
 class _DragballState extends State<Dragball> with TickerProviderStateMixin {
-  bool _isBallDraged = false, _isBallHide = false, _isPositionOnRight = false;
+  bool _isBallDraged = false,
+      _isBallHide = false,
+      _isPositionOnRight = false,
+      _isClose = false;
   double? _top, _left = 0, _right, _bottom;
+  Size? _ballSize;
   late DragballPosition _dragballPosition;
-
+  late DragballController _controller;
   late AnimationController _animationController;
   late AnimationController _offsetAnimationController;
   late AnimationController _rotateIconAnimationController;
@@ -110,25 +123,30 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
     _animationController = AnimationController(
         vsync: this,
         duration: widget.animationSizeDuration ?? kDefaultAnimationDuration);
-    _sizeAnimation = Tween<double>(begin: 1, end: 0).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: widget.curveSizeAnimation ?? Curves.easeIn,
-    ));
+    _sizeAnimation = Tween<double>(begin: 1, end: 0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: widget.curveSizeAnimation ?? Curves.easeIn,
+      ),
+    );
     _offsetAnimationController =
         AnimationController(vsync: this, duration: kDefaultAnimationDuration);
     _offsetAnimation = Tween<Offset>(
       begin: Offset.zero,
       end: const Offset(0.6, 0.0),
-    ).animate(CurvedAnimation(
-      parent: _offsetAnimationController,
-      curve: Curves.easeIn,
-    ));
+    ).animate(
+      CurvedAnimation(
+        parent: _offsetAnimationController,
+        curve: Curves.easeIn,
+      ),
+    );
     _rotateIconAnimationController =
         AnimationController(vsync: this, duration: kDefaultAnimationDuration);
     _rotateIconAnimation = Tween<double>(begin: 0, end: -math.pi)
         .animate(_rotateIconAnimationController);
 
     _initialPosition();
+    _initController();
     super.initState();
   }
 
@@ -153,6 +171,22 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
     if (widget.initialPosition.isHide) {
       _onHideOrShowBall();
     }
+  }
+
+  void _initController() {
+    _controller = widget.controller ?? DragballController();
+    _controller.addListener(() {
+      final ballState = _controller.value;
+      if (ballState == BallState.close) {
+        setState(() {
+          _isClose = true;
+        });
+      } else if (_isClose) {
+        setState(() {
+          _isClose = false;
+        });
+      }
+    });
   }
 
   /// Monitor if there is scroll activity
@@ -211,7 +245,7 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
   /// calculate the position of the ball
   void _onDragEnd(DraggableDetails details, Size size) {
     final Offset offset = details.offset;
-    final double halfWidthBall = widget.ballSize / 1.5;
+    final double halfWidthBall = _ballSize!.width / 1.5;
     final double halfWidth = size.width / 2 - halfWidthBall;
     final double maxHeight = size.height - 150.0;
 
@@ -289,108 +323,145 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
       onNotification: _onNotification,
       child: Stack(
         children: [
+          Opacity(
+            opacity: 0,
+            child: MeasureProperty(
+              onChanged: (size) {
+                _ballSize = size;
+                setState(() {});
+              },
+              child: widget.ball,
+            ),
+          ),
           RepaintBoundary(
             child: widget.child,
           ),
-          Positioned(
-            top: _top,
-            left: _left,
-            right: _right,
-            bottom: _bottom,
-            width: widget.ballSize +
-                (widget.iconSize + (widget.icon == null ? 3 : 0)) / 2,
-            height: widget.ballSize,
-            child: AnimatedBuilder(
-              animation: _offsetAnimationController,
-              builder: (context, child) {
-                if (_isPositionOnRight) {
-                  return FractionalTranslation(
-                    translation: _offsetAnimation.value,
-                    child: child,
-                  );
-                } else {
-                  return FractionalTranslation(
-                    translation: Offset(-_offsetAnimation.value.dx, 0.0),
-                    child: child,
-                  );
-                }
-              },
-              child: AnimatedBuilder(
-                animation: _animationController,
-                builder: (context, child) {
-                  return Transform.scale(
-                    scale: _sizeAnimation.value,
-                    child: child,
-                  );
-                },
-                child: Draggable(
-                  child: Visibility(
-                    visible: !_isBallDraged,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Positioned(
-                          right: _isPositionOnRight ? 0 : null,
-                          left: !_isPositionOnRight ? 0 : null,
-                          child: MouseRegion(
-                            cursor: MaterialStateMouseCursor.clickable,
-                            child: GestureDetector(
-                              child: widget.ball,
-                              onTap: !_isBallHide
-                                  ? () {
-                                      widget.onTap();
-                                    }
-                                  : null,
-                            ),
-                          ),
-                        ),
-                        if (widget.withIcon)
-                          Align(
-                            alignment: _iconAlignment(),
-                            child: GestureDetector(
-                              onTap: () => _onHideOrShowBall(),
-                              behavior: HitTestBehavior.translucent,
-                              child: MouseRegion(
-                                cursor: SystemMouseCursors.click,
-                                child: AnimatedBuilder(
-                                  animation: _rotateIconAnimationController,
-                                  builder: (context, icon) {
-                                    return Transform.rotate(
-                                      angle: widget.rotateIcon
-                                          ? _rotateIconAnimation.value
-                                          : 0.0,
-                                      child: icon,
-                                    );
-                                  },
-                                  child: widget.icon ??
-                                      DecoratedBox(
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: theme.primaryColor,
-                                        ),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(3),
-                                          child: Icon(
-                                            Icons.navigate_before_rounded,
-                                            size: widget.iconSize,
-                                            color: Colors.white,
+          if (_ballSize != null)
+            Positioned(
+              top: _top,
+              left: _left,
+              right: _right,
+              bottom: _bottom,
+              width: _ballSize!.width +
+                  (widget.iconSize + (widget.icon == null ? 3 : 0)) / 2,
+              height: _ballSize!.width,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                reverseDuration: const Duration(milliseconds: 200),
+                switchInCurve: Curves.easeIn,
+                switchOutCurve: Curves.easeOutSine,
+                transitionBuilder: (child, animation) => ScaleTransition(
+                  scale: animation,
+                  child: child,
+                ),
+                child: _isClose
+                    ? SizedBox.fromSize(
+                        size: _ballSize ?? Size.zero,
+                      )
+                    : AnimatedBuilder(
+                        animation: _offsetAnimationController,
+                        builder: (context, child) {
+                          if (_isPositionOnRight) {
+                            return FractionalTranslation(
+                              translation: _offsetAnimation.value,
+                              child: child,
+                            );
+                          } else {
+                            return FractionalTranslation(
+                              translation:
+                                  Offset(-_offsetAnimation.value.dx, 0.0),
+                              child: child,
+                            );
+                          }
+                        },
+                        child: AnimatedBuilder(
+                          animation: _animationController,
+                          builder: (context, child) {
+                            return Transform.scale(
+                              scale: _sizeAnimation.value,
+                              child: child,
+                            );
+                          },
+                          child: Draggable(
+                            child: Visibility(
+                              visible: !_isBallDraged,
+                              child: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  Positioned(
+                                    right: _isPositionOnRight ? 0 : null,
+                                    left: !_isPositionOnRight ? 0 : null,
+                                    child: MouseRegion(
+                                      cursor:
+                                          MaterialStateMouseCursor.clickable,
+                                      child: GestureDetector(
+                                        child: widget.ball,
+                                        onTap: !_isBallHide
+                                            ? () {
+                                                widget.onTap();
+                                              }
+                                            : null,
+                                      ),
+                                    ),
+                                  ),
+                                  if (widget.withIcon)
+                                    Align(
+                                      alignment: _iconAlignment(),
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          if (widget.onIconBallTapped != null) {
+                                            widget
+                                                .onIconBallTapped!(_controller);
+                                          } else {
+                                            _onHideOrShowBall();
+                                          }
+                                        },
+                                        behavior: HitTestBehavior.translucent,
+                                        child: MouseRegion(
+                                          cursor: SystemMouseCursors.click,
+                                          child: AnimatedBuilder(
+                                            animation:
+                                                _rotateIconAnimationController,
+                                            builder: (context, icon) {
+                                              return Transform.rotate(
+                                                angle: widget.rotateIcon
+                                                    ? _rotateIconAnimation.value
+                                                    : 0.0,
+                                                child: icon,
+                                              );
+                                            },
+                                            child: widget.icon ??
+                                                DecoratedBox(
+                                                  decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    color: theme.primaryColor,
+                                                  ),
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(3),
+                                                    child: Icon(
+                                                      Icons
+                                                          .navigate_before_rounded,
+                                                      size: widget.iconSize,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                ),
                                           ),
                                         ),
                                       ),
-                                ),
+                                    ),
+                                ],
                               ),
                             ),
+                            feedback: widget.ball,
+                            onDragStarted: () => _onDragStarted(),
+                            onDragEnd: (details) => _onDragEnd(details, size),
                           ),
-                      ],
-                    ),
-                  ),
-                  feedback: widget.ball,
-                  onDragStarted: () => _onDragStarted(),
-                  onDragEnd: (details) => _onDragEnd(details, size),
-                ),
+                        ),
+                      ),
               ),
             ),
-          ),
         ],
       ),
     );

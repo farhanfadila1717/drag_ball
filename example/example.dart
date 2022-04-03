@@ -23,10 +23,10 @@ class ExampleDragball extends StatelessWidget {
       ball: const FlutterLogo(
         size: 70,
       ),
-      ballSize: 70,
       initialPosition: const DragballPosition(
         top: 200,
         isRight: false,
+        isHide: false,
       ),
       onTap: () {
         debugPrint('Dragball Tapped ${DateTime.now().microsecond}');

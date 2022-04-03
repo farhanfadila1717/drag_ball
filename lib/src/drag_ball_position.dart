@@ -5,8 +5,11 @@ class DragballPosition {
   final bool isRight;
   final bool isHide;
 
-  const DragballPosition(
-      {this.top = 100, this.isRight = true, this.isHide = false});
+  const DragballPosition({
+    required this.top,
+    required this.isRight,
+    required this.isHide,
+  });
 
   DragballPosition copyWith({
     double? top,
