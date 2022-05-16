@@ -7,7 +7,7 @@ part 'drag_ball_position.dart';
 part 'enum.dart';
 part 'utils.dart';
 
-const Duration kDefaultAnimationDuration = Duration(milliseconds: 300);
+const Duration _kDefaultAnimationDuration = Duration(milliseconds: 300);
 
 class Dragball extends StatefulWidget {
   const Dragball({
@@ -17,7 +17,6 @@ class Dragball extends StatefulWidget {
     required this.onTap,
     required this.initialPosition,
     required this.onPositionChanged,
-    @Deprecated('No longer used in ver 0.5.0 or above') this.ballSize,
     this.onIconBallTapped,
     this.controller,
     this.marginTopBottom = 150,
@@ -39,8 +38,6 @@ class Dragball extends StatefulWidget {
   /// example with image
   /// make sure the size is the same as [ballSize] property
   final Widget ball;
-
-  final double? ballSize;
 
   final DragballController? controller;
 
@@ -122,7 +119,7 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
   void initState() {
     _animationController = AnimationController(
         vsync: this,
-        duration: widget.animationSizeDuration ?? kDefaultAnimationDuration);
+        duration: widget.animationSizeDuration ?? _kDefaultAnimationDuration);
     _sizeAnimation = Tween<double>(begin: 1, end: 0).animate(
       CurvedAnimation(
         parent: _animationController,
@@ -130,7 +127,7 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
       ),
     );
     _offsetAnimationController =
-        AnimationController(vsync: this, duration: kDefaultAnimationDuration);
+        AnimationController(vsync: this, duration: _kDefaultAnimationDuration);
     _offsetAnimation = Tween<Offset>(
       begin: Offset.zero,
       end: const Offset(0.6, 0.0),
@@ -141,7 +138,7 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
       ),
     );
     _rotateIconAnimationController =
-        AnimationController(vsync: this, duration: kDefaultAnimationDuration);
+        AnimationController(vsync: this, duration: _kDefaultAnimationDuration);
     _rotateIconAnimation = Tween<double>(begin: 0, end: -math.pi)
         .animate(_rotateIconAnimationController);
 
@@ -160,21 +157,39 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
 
   /// function to initialize position
   /// just called on [initState]
+  ///
   void _initialPosition() {
+    final position = widget.initialPosition;
+    final isRight = position.isRight;
+    final isHide = position.isHide;
     _dragballPosition = widget.initialPosition;
     _top = widget.initialPosition.top;
-    if (widget.initialPosition.isRight) {
+    _isBallHide = isHide;
+    if (isRight) {
       _left = null;
       _right = 0;
       _isPositionOnRight = true;
-    }
-    if (widget.initialPosition.isHide) {
-      _onHideOrShowBall();
+
+      if (!isHide) {
+        _rotateIconAnimationController.value = 1.0;
+      } else {
+        _offsetAnimationController.value = 1.0;
+      }
+    } else {
+      _left = 0;
+      _right = null;
+      _isPositionOnRight = false;
+
+      if (isHide) {
+        _offsetAnimationController.value = 1.0;
+        _rotateIconAnimationController.value = 1.0;
+      }
     }
   }
 
   void _initController() {
     _controller = widget.controller ?? DragballController();
+    _isClose = _controller.value == BallState.close;
     _controller.addListener(() {
       final ballState = _controller.value;
       if (ballState == BallState.close) {
@@ -238,6 +253,7 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
     widget.onPositionChanged(
       _dragballPosition.copyWith(isHide: _isBallHide),
     );
+
     setState(() {});
   }
 
@@ -353,6 +369,9 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
                 transitionBuilder: (child, animation) => ScaleTransition(
                   scale: animation,
                   child: child,
+                  alignment: _isPositionOnRight
+                      ? Alignment.centerRight
+                      : Alignment.centerLeft,
                 ),
                 child: _isClose
                     ? SizedBox.fromSize(

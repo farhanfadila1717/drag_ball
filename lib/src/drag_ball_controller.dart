@@ -11,7 +11,7 @@ class DragballController extends ValueNotifier<BallState> {
     value = BallState.show;
   }
 
-  void showOrHide() {
+  void showOrClose() {
     if (value == BallState.close) {
       show();
     } else {
