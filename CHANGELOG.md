@@ -1,4 +1,7 @@
 ## 0.5.1
+* Fix `DragballController` show or hide
+
+## 0.5.1
 * Fix lints Flutter 3 
 
 ## 0.5.0
