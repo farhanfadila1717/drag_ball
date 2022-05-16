@@ -1,4 +1,4 @@
-## 0.5.1
+## 0.5.2
 * Fix `DragballController` show or hide
 
 ## 0.5.1
