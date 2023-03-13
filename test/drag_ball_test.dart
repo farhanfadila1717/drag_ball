@@ -12,8 +12,7 @@ void main() {
           controller: controller,
           ball: FlutterLogo(size: 55),
           onTap: () {},
-          initialPosition:
-              DragballPosition(top: 200, isRight: true, isHide: false),
+          initialPosition: DragballPosition.defaultPosition(),
           onPositionChanged: (position) => debugPrint(
             position.toString(),
           ),
@@ -27,9 +26,9 @@ void main() {
       await tester.pumpWidget(widget);
       expect(ball, findsOneWidget);
 
-      controller.close();
+      controller.hide();
       await tester.pumpAndSettle();
-      expect(controller.value, BallState.close);
+      expect(controller.value, BallState.hide);
     });
   });
 }
@@ -43,9 +42,7 @@ class WrapAppTest extends StatelessWidget {
   final Widget child;
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: child,
-    );
-  }
+  Widget build(BuildContext context) => MaterialApp(
+        home: child,
+      );
 }

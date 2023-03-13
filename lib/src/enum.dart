@@ -1,5 +1,5 @@
-part of 'drag_ball.dart';
-
+/// The position of the icon in a widget.
 enum IconPosition { top, center, bottom }
 
-enum BallState { show, close }
+/// The state of a ball.
+enum BallState { show, hide }

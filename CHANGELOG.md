@@ -1,3 +1,9 @@
+## 1.0.0-dev.1
+* Fix `DragballController` show or hide
+* bump min dart to `2.17.0`
+* bump min Flutter to `3.0.0`
+
+
 ## 0.5.2
 * Fix `DragballController` show or hide
 

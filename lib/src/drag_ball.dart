@@ -1,23 +1,29 @@
 import 'dart:math' as math show pi;
+import 'package:drag_ball/drag_ball.dart';
+import 'package:drag_ball/src/widgets/measure_size.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart' show RenderProxyBox;
-
-part 'drag_ball_controller.dart';
-part 'drag_ball_position.dart';
-part 'enum.dart';
-part 'utils.dart';
 
 const Duration _kDefaultAnimationDuration = Duration(milliseconds: 300);
 
+/// {@template Dragball}
+/// Dragball is the widget similar of assistive touch iphone.
+///
+/// Example:
+/// ```dart
+///   Dragball(
+///     child: YourScreenPage
+///   )
+/// ```
+/// {@endtemplate}
 class Dragball extends StatefulWidget {
+  /// {@macro Dragball}
   const Dragball({
-    Key? key,
+    super.key,
     required this.child,
     required this.ball,
     required this.onTap,
     required this.initialPosition,
     required this.onPositionChanged,
-    this.onIconBallTapped,
     this.controller,
     this.marginTopBottom = 150,
     this.withIcon = true,
@@ -28,10 +34,16 @@ class Dragball extends StatefulWidget {
     this.curveSizeAnimation,
     this.iconPosition = IconPosition.center,
     this.scrollAndHide = true,
-  }) : super(key: key);
+  });
 
   /// Put your screen here
-  /// example your [Scaffold]
+  /// example:
+  /// ```dart
+  /// Dragaball(
+  ///   // your entire screen page
+  ///   child: Scaffold
+  /// )
+  /// ```
   final Widget child;
 
   /// This widget for Custom your ball
@@ -39,15 +51,11 @@ class Dragball extends StatefulWidget {
   /// make sure the size is the same as [ballSize] property
   final Widget ball;
 
+  /// {@macro DragballController}
   final DragballController? controller;
 
   /// This function will be called when the ball is pressed
   final VoidCallback onTap;
-
-  /// This function will called when icon is tapped / pressed
-  /// default when tapped icon is show / hide ball
-  /// If you need show / close ball this function will help you
-  final OnIconBallTapped? onIconBallTapped;
 
   /// [initialPosition] will be the location or display
   /// or configuration of the first position [Dragball]
@@ -95,28 +103,71 @@ class Dragball extends StatefulWidget {
   /// if you don't want size animation when user scrolls, set this property value to false
   /// Default true
   final bool scrollAndHide;
+
   @override
   _DragballState createState() => _DragballState();
 }
 
 class _DragballState extends State<Dragball> with TickerProviderStateMixin {
-  bool _isBallDraged = false,
-      _isBallHide = false,
-      _isPositionOnRight = false,
-      _isClose = false;
+  bool _isBallDraged = false, _isPositionOnRight = false;
   double? _top, _left = 0, _right, _bottom;
   Size? _ballSize;
+  late BallState _ballState;
   late DragballPosition _dragballPosition;
-  late DragballController _controller;
-  late AnimationController _animationController;
-  late AnimationController _offsetAnimationController;
-  late AnimationController _rotateIconAnimationController;
-  late Animation<double> _sizeAnimation;
-  late Animation<Offset> _offsetAnimation;
-  late Animation<double> _rotateIconAnimation;
+  late final DragballController _controller;
+  late final AnimationController _animationController;
+  late final AnimationController _offsetAnimationController;
+  late final AnimationController _rotateIconAnimationController;
+  late final Animation<double> _sizeAnimation;
+  late final Animation<Offset> _offsetAnimation;
+  late final Animation<double> _rotateIconAnimation;
 
   @override
   void initState() {
+    super.initState();
+    _initAnimation();
+    _initialPosition();
+    _initController();
+  }
+
+  @override
+  void didUpdateWidget(covariant Dragball oldWidget) {
+    if (widget.animationSizeDuration != oldWidget.animationSizeDuration) {
+      _animationController.duration = widget.animationSizeDuration;
+    }
+    super.didUpdateWidget(oldWidget);
+  }
+
+  void _initialPosition() {
+    final position = widget.initialPosition;
+    final isRight = position.isRight;
+
+    _dragballPosition = widget.initialPosition;
+    _top = widget.initialPosition.top;
+    _ballState = position.ballState;
+    if (isRight) {
+      _left = null;
+      _right = 0;
+      _isPositionOnRight = true;
+
+      if (!_ballState.isHide) {
+        _rotateIconAnimationController.value = 1.0;
+      } else {
+        _offsetAnimationController.value = 1.0;
+      }
+    } else {
+      _left = 0;
+      _right = null;
+      _isPositionOnRight = false;
+
+      if (!_ballState.isHide) {
+        _offsetAnimationController.value = 1.0;
+        _rotateIconAnimationController.value = 1.0;
+      }
+    }
+  }
+
+  void _initAnimation() {
     _animationController = AnimationController(
         vsync: this,
         duration: widget.animationSizeDuration ?? _kDefaultAnimationDuration);
@@ -141,71 +192,17 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
         AnimationController(vsync: this, duration: _kDefaultAnimationDuration);
     _rotateIconAnimation = Tween<double>(begin: 0, end: -math.pi)
         .animate(_rotateIconAnimationController);
-
-    _initialPosition();
-    _initController();
-    super.initState();
-  }
-
-  @override
-  void didUpdateWidget(covariant Dragball oldWidget) {
-    if (widget.animationSizeDuration != oldWidget.animationSizeDuration) {
-      _animationController.duration = widget.animationSizeDuration;
-    }
-    super.didUpdateWidget(oldWidget);
-  }
-
-  /// function to initialize position
-  /// just called on [initState]
-  ///
-  void _initialPosition() {
-    final position = widget.initialPosition;
-    final isRight = position.isRight;
-    final isHide = position.isHide;
-    _dragballPosition = widget.initialPosition;
-    _top = widget.initialPosition.top;
-    _isBallHide = isHide;
-    if (isRight) {
-      _left = null;
-      _right = 0;
-      _isPositionOnRight = true;
-
-      if (!isHide) {
-        _rotateIconAnimationController.value = 1.0;
-      } else {
-        _offsetAnimationController.value = 1.0;
-      }
-    } else {
-      _left = 0;
-      _right = null;
-      _isPositionOnRight = false;
-
-      if (isHide) {
-        _offsetAnimationController.value = 1.0;
-        _rotateIconAnimationController.value = 1.0;
-      }
-    }
   }
 
   void _initController() {
     _controller = widget.controller ?? DragballController();
-    _isClose = _controller.value == BallState.close;
+
     _controller.addListener(() {
-      final ballState = _controller.value;
-      if (ballState == BallState.close) {
-        setState(() {
-          _isClose = true;
-        });
-      } else if (_isClose) {
-        setState(() {
-          _isClose = false;
-        });
-      }
+      _ballState = _controller.value;
+      _onHideOrShowBall();
     });
   }
 
-  /// Monitor if there is scroll activity
-  /// if there is scroll activity this function will trigger size animation
   bool _onNotification(ScrollNotification? scrollNotification) {
     if (scrollNotification == null || !widget.scrollAndHide) {
       return false;
@@ -223,17 +220,12 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
     return false;
   }
 
-  /// This function will be called the first time
-  /// when the user drag the ball
-  void _onDragStarted() {
-    setState(() {
-      _isBallDraged = true;
-    });
-  }
+  void _onDragStarted() => setState(() {
+        _isBallDraged = true;
+      });
 
-  /// This function will hide the ball or show the ball
   void _onHideOrShowBall() {
-    if (!_isBallHide) {
+    if (_ballState.isHide) {
       _offsetAnimationController.forward();
       if (_isPositionOnRight) {
         _rotateIconAnimationController.reverse();
@@ -248,17 +240,12 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
         _rotateIconAnimationController.reverse();
       }
     }
-    _isBallHide = !_isBallHide;
 
     widget.onPositionChanged(
-      _dragballPosition.copyWith(isHide: _isBallHide),
+      _dragballPosition.copyWith(ballState: _ballState),
     );
-
-    setState(() {});
   }
 
-  /// When the user releases the ball, this function will
-  /// calculate the position of the ball
   void _onDragEnd(DraggableDetails details, Size size) {
     final Offset offset = details.offset;
     final double halfWidthBall = _ballSize!.width / 1.5;
@@ -277,18 +264,19 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
     }
     if (offset.dx > halfWidth) {
       _right = 0;
-      _isBallHide
-          ? _rotateIconAnimationController.reverse()
-          : _rotateIconAnimationController.forward();
       _isPositionOnRight = true;
       _left = null;
+      _ballState.isHide
+          ? _rotateIconAnimationController.reverse()
+          : _rotateIconAnimationController.forward();
     } else {
       _right = null;
       _isPositionOnRight = false;
-      !_isBallHide
+
+      _left = 0;
+      !_ballState.isHide
           ? _rotateIconAnimationController.reverse()
           : _rotateIconAnimationController.forward();
-      _left = 0;
     }
     _isBallDraged = false;
     widget.onPositionChanged(
@@ -298,9 +286,8 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
   }
 
   /// When ball position change from left to right or right to left
-  /// this method will determine the position of the icon
-  /// based on [widget.iconPosition] Property
-  Alignment _iconAlignment() {
+  /// this method will determine the position of the icon.
+  Alignment get _iconAlignment {
     if (_isPositionOnRight) {
       switch (widget.iconPosition) {
         case IconPosition.top:
@@ -324,6 +311,7 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
 
   @override
   void dispose() {
+    _controller.dispose();
     _animationController.dispose();
     _offsetAnimationController.dispose();
     _rotateIconAnimationController.dispose();
@@ -340,9 +328,11 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
       child: Stack(
         children: [
           Opacity(
-            opacity: 0,
-            child: MeasureProperty(
+            opacity: 0.0,
+            child: MeasureSize(
               onChanged: (size) {
+                if (size == _ballSize) return;
+
                 _ballSize = size;
                 setState(() {});
               },
@@ -373,7 +363,7 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
                       ? Alignment.centerRight
                       : Alignment.centerLeft,
                 ),
-                child: _isClose
+                child: _ballState.isHide
                     ? SizedBox.fromSize(
                         size: _ballSize ?? Size.zero,
                       )
@@ -415,26 +405,17 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
                                           MaterialStateMouseCursor.clickable,
                                       child: GestureDetector(
                                         child: widget.ball,
-                                        onTap: !_isBallHide
-                                            ? () {
-                                                widget.onTap();
-                                              }
+                                        onTap: !_ballState.isHide
+                                            ? widget.onTap
                                             : null,
                                       ),
                                     ),
                                   ),
                                   if (widget.withIcon)
                                     Align(
-                                      alignment: _iconAlignment(),
+                                      alignment: _iconAlignment,
                                       child: GestureDetector(
-                                        onTap: () {
-                                          if (widget.onIconBallTapped != null) {
-                                            widget
-                                                .onIconBallTapped!(_controller);
-                                          } else {
-                                            _onHideOrShowBall();
-                                          }
-                                        },
+                                        onTap: _controller.reverse,
                                         behavior: HitTestBehavior.translucent,
                                         child: MouseRegion(
                                           cursor: SystemMouseCursors.click,
