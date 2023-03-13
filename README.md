@@ -17,17 +17,10 @@ Dragball(
   ball: const FlutterLogo(
     size: 70,
   ),
-  initialPosition: const DragballPosition(
-    top: 200,
-    isRight: false,
-    isHide: false,
-  ),
-  onTap: () {
-    debugPrint('Dragball Tapped ${DateTime.now().microsecond}');
-  },
-  onPositionChanged: (DragballPosition position) {
-    debugPrint(position.toString());
-  },
+  initialPosition: DragballPosition.defaultPosition(),
+  onTap: () => debugPrint('Dragball Tapped'),
+  onPositionChanged: (DragballPosition position) =>
+      debugPrint(position.toString()),
   child: Scaffold(
     appBar: AppBar(
       title: const Text('Dragball Example'),

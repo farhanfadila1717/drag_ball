@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 const Duration _kDefaultAnimationDuration = Duration(milliseconds: 300);
 
 /// {@template Dragball}
-/// Dragball is the widget similar of assistive touch iphone.
+/// Dragball is the widget similiar AssistiveTouch on Iphone.
 ///
 /// Example:
 /// ```dart
