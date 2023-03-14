@@ -311,7 +311,6 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    _controller.dispose();
     _animationController.dispose();
     _offsetAnimationController.dispose();
     _rotateIconAnimationController.dispose();
