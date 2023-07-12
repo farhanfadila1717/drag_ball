@@ -1,11 +1,20 @@
 import 'dart:math' as math show pi;
 import 'package:drag_ball/drag_ball.dart';
-import 'package:drag_ball/src/widgets/measure_size.dart';
+import 'package:drag_ball/src/models/ball_limit_area.dart';
+import 'package:drag_ball/src/widgets/fake_ball.dart';
 import 'package:flutter/material.dart';
 
-const Duration _kDefaultAnimationDuration = Duration(milliseconds: 300);
+const Duration _kDefaultAnimationDuration = Duration(
+  milliseconds: 300,
+);
 
-/// {@template Dragball}
+const BallLimitArea _kDefaultBallLimitArea = BallLimitArea(
+  top: 100.0,
+  bottom: 100.0,
+  useSafeArea: true,
+);
+
+/// {@template drag_ball}
 /// Dragball is the widget similiar AssistiveTouch on Iphone.
 ///
 /// Example:
@@ -16,7 +25,7 @@ const Duration _kDefaultAnimationDuration = Duration(milliseconds: 300);
 /// ```
 /// {@endtemplate}
 class Dragball extends StatefulWidget {
-  /// {@macro Dragball}
+  /// {@macro drag_ball}
   const Dragball({
     super.key,
     required this.child,
@@ -25,7 +34,9 @@ class Dragball extends StatefulWidget {
     required this.initialPosition,
     required this.onPositionChanged,
     this.controller,
-    this.marginTopBottom = 150,
+    this.ballLimitArea = _kDefaultBallLimitArea,
+    @Deprecated('no longer used, use margin instead')
+        this.marginTopBottom = 150,
     this.withIcon = true,
     this.icon,
     this.iconSize = 24,
@@ -60,6 +71,9 @@ class Dragball extends StatefulWidget {
   /// [initialPosition] will be the location or display
   /// or configuration of the first position [Dragball]
   final DragballPosition initialPosition;
+
+  /// The limit area within which a ball widget can be moved.
+  final BallLimitArea ballLimitArea;
 
   /// Custom Margin top bottom
   /// Ball would not be in that position
@@ -246,22 +260,40 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
     );
   }
 
-  void _onDragEnd(DraggableDetails details, Size size) {
+  /// Callback method invoked when the user completes dragging the ball widget.
+  ///
+  /// The method updates the position of the ball based on the drag details and the size
+  /// of the parent widget. It also triggers an animation of a rotation icon depending on
+  /// the ball's position. Finally, it calls the `onPositionChanged` callback function
+  /// provided by the parent widget to notify it of the updated position of the ball.
+  void _onDragEnd(DraggableDetails details, Size size, EdgeInsets viewPadding) {
     final Offset offset = details.offset;
     final double halfWidthBall = _ballSize!.width / 1.5;
     final double halfWidth = size.width / 2 - halfWidthBall;
-    final double maxHeight = size.height - 150.0;
+    final double ballLimitAreaTop =
+        widget.ballLimitArea.topWithSafeArea(viewPadding.top);
+    final double ballLimitAreaBottom =
+        widget.ballLimitArea.bottomWithSafeArea(viewPadding.bottom);
 
-    if (offset.dy < widget.marginTopBottom) {
-      _top = widget.marginTopBottom;
+    if (offset.dy < ballLimitAreaTop) {
+      _top = ballLimitAreaTop;
       _bottom = null;
-    } else if (offset.dy > widget.marginTopBottom && offset.dy < maxHeight) {
+    } else if (offset.dy >= ballLimitAreaBottom) {
+      _top = null;
+      _bottom = ballLimitAreaBottom;
+    } else {
       _top = offset.dy;
       _bottom = null;
-    } else {
-      _bottom = widget.marginTopBottom;
-      _top = null;
     }
+
+    // If the ball's end drag position is to the right of the horizontal center of
+    // the widget, position the ball on the right edge of the widget by setting the
+    // right position to 0 and clearing the left position. Also update the `_isPositionOnRight`
+    // and `_ballState` properties of the widget and trigger the appropriate animation
+    // based on whether the ball is currently hidden or not. Otherwise, position the
+    // ball on the left edge of the widget by setting the left position to 0 and clearing
+    // the right position. Also update the `_isPositionOnRight` property and trigger
+    // the appropriate animation to rotate the icon.
     if (offset.dx > halfWidth) {
       _right = 0;
       _isPositionOnRight = true;
@@ -279,6 +311,7 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
           : _rotateIconAnimationController.forward();
     }
     _isBallDraged = false;
+
     widget.onPositionChanged(
       _dragballPosition.copyWith(isRight: _isPositionOnRight, top: _top),
     );
@@ -319,24 +352,23 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final Size size = MediaQuery.of(context).size;
+    final MediaQueryData mediaQueryData = MediaQuery.of(context);
+    final Size size = mediaQueryData.size;
+    final EdgeInsets viewPadding = mediaQueryData.viewPadding;
     final ThemeData theme = Theme.of(context);
 
     return NotificationListener<ScrollNotification>(
       onNotification: _onNotification,
       child: Stack(
         children: [
-          Opacity(
-            opacity: 0.0,
-            child: MeasureSize(
-              onChanged: (size) {
-                if (size == _ballSize) return;
-
+          FakeBall(
+            ball: widget.ball,
+            currentBallSize: _ballSize,
+            onChanged: (size) {
+              setState(() {
                 _ballSize = size;
-                setState(() {});
-              },
-              child: widget.ball,
-            ),
+              });
+            },
           ),
           RepaintBoundary(
             child: widget.child,
@@ -455,7 +487,8 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
                             ),
                             feedback: widget.ball,
                             onDragStarted: () => _onDragStarted(),
-                            onDragEnd: (details) => _onDragEnd(details, size),
+                            onDragEnd: (details) =>
+                                _onDragEnd(details, size, viewPadding),
                           ),
                         ),
                       ),
