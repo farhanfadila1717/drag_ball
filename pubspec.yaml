@@ -5,7 +5,8 @@ repository: https://github.com/farhanfadila1717/drag_ball
 issue_tracker: https://github.com/farhanfadila1717/drag_ball/issues
 homepage: https://farhan-fadila.web.app/
 maintener: Farhan Fadila (@farhanfadila1717)
-funding: https://www.paypal.me/farhanfadila1717
+funding:
+  - https://www.paypal.me/farhanfadila1717
 
 environment:
   sdk: ">=2.17.0 <4.0.0"
@@ -22,10 +23,10 @@ dev_dependencies:
 flutter:
 
 topics:
-  - Assitive Touch
-  - TikTok
-  - Overlay
-  - Draggable
+  - assitive-touch
+  - tiktok
+  - overlay
+  - draggable
 
 screenshots:
   - description: "Examples of the DragBall."
