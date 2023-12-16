@@ -1,17 +1,22 @@
 ## [![cover][]][pubdev dragball]
 
 [![flutter][]][web flutter] [![badge paypal][]][paypal account] <br>
+[![qr-paypal][]][paypal account]
+
 A flutter package, inspiration Indonesian e-commerce widget or similiar AssistiveTouch on Iphone.
+
+## 🌟 Open To Work / Freelance
+
+Farhan The author of this package is available for hiring as Flutter Developer. See portofolio website [here](https://farhan-fadila.web.app/).
+
+## 📌 Note
+
+- Put [DragBall] on top the Scaffold
 
 ---
 
-## ⚠️ Note
-* Put [DragBall] on top the Scaffold
-
-
-----
-
 ## Example
+
 ```dart
 Dragball(
   ball: const FlutterLogo(
@@ -74,23 +79,29 @@ Dragball(
   ),
 );
 ```
+
 ### Output
 
 [![output][]][output]
 
-----
+---
 
-### 🚧 Maintener 
+### 🚧 Maintener
+
 [![account avatar][]][github account] <br>
 **Farhan Fadila** <br>
 📫 How to reach me: farhan.fadila1717@gmail.com
 
 ### ❤️ Suport Maintener
+
 [![badge paypal][]][paypal account] [![badge linktree][]][linktree account]
 
-[cover]: https://github.com/farhanfadila1717/flutter_package/blob/master/display/drag_ball/drag_ball.png
+[![qr-paypal][]][paypal account]
+
+[cover]: https://raw.githubusercontent.com/farhanfadila1717/flutter_package/master/display/drag_ball/drag_ball.png
 [pubdev dragball]: https://pub.dev/packages/drag_ball
-[output]: https://github.com/farhanfadila1717/flutter_package/blob/master/display/drag_ball/output.gif
+[output]: https://raw.githubusercontent.com/farhanfadila1717/flutter_package/master/display/drag_ball/output.gif
+[portofolio]: https://farhan-fadila.web.app/#/blog/countdown_timer_in_flutter
 [account avatar]: https://avatars.githubusercontent.com/u/43161050?s=80
 [github account]: https://github.com/farhanfadila1717
 [badge linktree]: https://img.shields.io/badge/Linktree-farhanfadila-orange
@@ -99,4 +110,4 @@ Dragball(
 [paypal account]: https://www.paypal.me/farhanfadila1717
 [flutter]: https://img.shields.io/badge/Platform-Flutter-02569B?logo=flutter
 [web flutter]: https://flutter.dev
-
+[qr-paypal]: https://raw.githubusercontent.com/farhanfadila1717/flutter_package/master/display/qr-paypal.png
