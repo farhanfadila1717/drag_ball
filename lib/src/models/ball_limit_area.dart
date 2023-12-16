@@ -13,5 +13,5 @@ class BallLimitArea {
       top + (useSafeArea ? safeAreaValue : 0);
 
   double bottomWithSafeArea(double safeAreaValue) =>
-      top + (useSafeArea ? safeAreaValue : 0);
+      bottom + (useSafeArea ? safeAreaValue : 0);
 }

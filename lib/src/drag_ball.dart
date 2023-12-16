@@ -36,7 +36,7 @@ class Dragball extends StatefulWidget {
     this.controller,
     this.ballLimitArea = _kDefaultBallLimitArea,
     @Deprecated('no longer used, use margin instead')
-        this.marginTopBottom = 150,
+    this.marginTopBottom = 150,
     this.withIcon = true,
     this.icon,
     this.iconSize = 24,
@@ -275,14 +275,18 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
     final double ballLimitAreaBottom =
         widget.ballLimitArea.bottomWithSafeArea(viewPadding.bottom);
 
-    if (offset.dy < ballLimitAreaTop) {
+    print(ballLimitAreaBottom);
+
+    final y = offset.dy;
+
+    if (y < ballLimitAreaTop) {
       _top = ballLimitAreaTop;
       _bottom = null;
-    } else if (offset.dy >= ballLimitAreaBottom) {
+    } else if (y >= size.height - ballLimitAreaBottom) {
       _top = null;
       _bottom = ballLimitAreaBottom;
     } else {
-      _top = offset.dy;
+      _top = y;
       _bottom = null;
     }
 
