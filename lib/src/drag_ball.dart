@@ -30,13 +30,11 @@ class Dragball extends StatefulWidget {
     super.key,
     required this.child,
     required this.ball,
-    required this.onTap,
     required this.initialPosition,
-    required this.onPositionChanged,
+    this.onPositionChanged,
+    this.onTap,
     this.controller,
     this.ballLimitArea = _kDefaultBallLimitArea,
-    @Deprecated('no longer used, use margin instead')
-    this.marginTopBottom = 150,
     this.withIcon = true,
     this.icon,
     this.iconSize = 24,
@@ -66,7 +64,7 @@ class Dragball extends StatefulWidget {
   final DragballController? controller;
 
   /// This function will be called when the ball is pressed
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   /// [initialPosition] will be the location or display
   /// or configuration of the first position [Dragball]
@@ -74,11 +72,6 @@ class Dragball extends StatefulWidget {
 
   /// The limit area within which a ball widget can be moved.
   final BallLimitArea ballLimitArea;
-
-  /// Custom Margin top bottom
-  /// Ball would not be in that position
-  /// default [marginTopBottom: 150]
-  final double marginTopBottom;
 
   /// If you don't want to show ball with icon,
   /// Change value to false
@@ -108,7 +101,7 @@ class Dragball extends StatefulWidget {
 
   /// this function will return the value of [DragballPosition]
   /// every time the position changes
-  final ValueChanged<DragballPosition> onPositionChanged;
+  final ValueChanged<DragballPosition>? onPositionChanged;
 
   /// Use this property to set [IconPosition] the top, center, or bottom position of the icon.
   /// Default [IconPostion] is center
@@ -255,7 +248,7 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
       }
     }
 
-    widget.onPositionChanged(
+    widget.onPositionChanged?.call(
       _dragballPosition.copyWith(ballState: _ballState),
     );
   }
@@ -274,8 +267,6 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
         widget.ballLimitArea.topWithSafeArea(viewPadding.top);
     final double ballLimitAreaBottom =
         widget.ballLimitArea.bottomWithSafeArea(viewPadding.bottom);
-
-    print(ballLimitAreaBottom);
 
     final y = offset.dy;
 
@@ -316,7 +307,7 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
     }
     _isBallDraged = false;
 
-    widget.onPositionChanged(
+    widget.onPositionChanged?.call(
       _dragballPosition.copyWith(isRight: _isPositionOnRight, top: _top),
     );
     setState(() {});
