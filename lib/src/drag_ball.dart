@@ -427,8 +427,7 @@ class _DragballState extends State<Dragball> with TickerProviderStateMixin {
                                     right: _isPositionOnRight ? 0 : null,
                                     left: !_isPositionOnRight ? 0 : null,
                                     child: MouseRegion(
-                                      cursor:
-                                          MaterialStateMouseCursor.clickable,
+                                      cursor: WidgetStateMouseCursor.clickable,
                                       child: GestureDetector(
                                         child: widget.ball,
                                         onTap: !_ballState.isHide
