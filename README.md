@@ -5,10 +5,6 @@
 
 A flutter package, inspiration Indonesian e-commerce widget or similiar AssistiveTouch on Iphone.
 
-## 🌟 Open To Work / Freelance
-
-Farhan The author of this package is available for hiring as Flutter Developer. See portofolio website [here](https://farhan-fadila.web.app/).
-
 ## 📌 Note
 
 - Put [DragBall] on top the Scaffold
